@@ -71,7 +71,6 @@ fi
 
 java -jar $SCRIPT_DIR/target/customhostnameverifiergenerator-1.0.jar "$adminInternalHostName" "$adminExternalHostName" "$adminDnsZoneName" "$dnsLabelPrefix" "$wlsDomainName" "$azureResourceGroupRegion" "$debugFlag"
 
-
 if [ $? != 0 ];
 then
   echo "CustHostNameVerifierGenerator Failed !! Please check the error and retry."
@@ -94,13 +93,16 @@ mvn  archetype:generate \
     -DgroupId=com.oracle.azure.weblogic.security.util \
     -DartifactId=$PROJECT_NAME \
     -DarchetypeArtifactId=maven-archetype-quickstart  \
-    -DinteractiveMode=false
+    -DinteractiveMode=false \
+    -DarchetypeCatalog=local
+    
 
 PROJECT_DIR="${PROJECT_BASE_DIR}/${PROJECT_NAME}"
 
 SOURCE_DIR="${PROJECT_DIR}/src/main/java/com/oracle/azure/weblogic/security/util"
 mkdir -p ${SOURCE_DIR}
-cp -rf $SCRIPT_DIR/target/WebLogicAzureCustomHostNameVerifier.java ${SOURCE_DIR}
+
+cp $SCRIPT_DIR/target/WebLogicAzureCustomHostNameVerifier.java ${SOURCE_DIR}
 rm -rf ${SOURCEDIR}/App.java
 
 cd $PROJECT_DIR 
@@ -118,10 +120,10 @@ mvn -DskipTests -Dmaven.test.skip=true clean package
 
 if [ $? != 0 ];
 then
-  echo "CustHostNameVerifier jar creation Failed !! Please check the error and retry."
+  echo "CustomHostNameVerifier jar creation Failed !! Please check the error and retry."
   exit 1
 else
-  echo "CustHostNameVerifier jar created Successfully !!"
+  echo "CustomHostNameVerifier jar created Successfully !!"
 fi
 
 

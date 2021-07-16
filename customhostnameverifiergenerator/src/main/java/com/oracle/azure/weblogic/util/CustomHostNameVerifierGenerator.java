@@ -1,23 +1,19 @@
 package com.oracle.azure.weblogic.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
-
-import freemarker.template.Configuration;
-import freemarker.template.Template;
 
 public class CustomHostNameVerifierGenerator
 {
-
-    public static final String CUSTOM_HOSTNAME_VERIFIER_TEMPLATE="CustomHostNameVerifierTemplate.ftl";
-    public static final String OUTPUT_FILE="target/WebLogicAzureCustomHostNameVerifier.java";
-    public static final String HOSTNAME_INPUT_PROPS_FILE="hostnameverifier.properties";
+    public static String TEMPLATE_NAME="CustomHostNameVerifierTemplate.java.template";
+    public static final String HOSTNAME_INPUT_PROPS_FILE="target/hostnameverifier.properties";
+    public static final String OUTPUT_HOSTNAME_VERIFIER_JAVA_FILE="target/WebLogicAzureCustomHostNameVerifier.java";
 
     private String adminInternalHostName;
     private String adminExternalHostName;
@@ -27,64 +23,35 @@ public class CustomHostNameVerifierGenerator
     private String azureResourceGroupRegion;
     private String debugFlag;   
     
-    private Template template = null;
-    Map<String, Object> dataMap = new HashMap<String, Object>();
-
-    private void init()
+    public Map<String, String> buildData() throws IOException
     {
-        Configuration cfg = new Configuration();
-        try
-        {
-            cfg.setClassForTemplateLoading(this.getClass(), "/ftl");
-            cfg.setDefaultEncoding("UTF-8");
-            template = cfg.getTemplate(CUSTOM_HOSTNAME_VERIFIER_TEMPLATE);
-        } 
-        catch (IOException e)
-        {
-            System.out.println("Error occured while initializing Freemarker Template Configuration");
-            e.printStackTrace();
-            System.exit(1);
-        }
+        Map<String, String> dataMap = new HashMap<String, String>();
 
+        dataMap.put("adminInternalHostName", this.adminInternalHostName);
+        dataMap.put("adminExternalHostName", this.adminExternalHostName);
+        dataMap.put("adminDNSZoneName", this.adminDNSZoneName);
+        dataMap.put("dnsLabelPrefix", this.dnsLabelPrefix);
+        dataMap.put("wlsDomainName", this.wlsDomainName);
+        dataMap.put("azureResourceGroupRegion", this.azureResourceGroupRegion);
+        dataMap.put("debugFlag",this.debugFlag);
+
+        Properties props = new Properties();
+        props.putAll(dataMap);
+        props.store(new FileOutputStream(HOSTNAME_INPUT_PROPS_FILE), null);
+
+        return dataMap;
     }
 
-    public void buildData()
+    public void writeFile(String content)
     {
+        Writer writer = null;
         try
         {
-            dataMap.put("adminInternalHostName", this.adminInternalHostName);
-            dataMap.put("adminExternalHostName", this.adminExternalHostName);
-            dataMap.put("adminDNSZoneName", this.adminDNSZoneName);
-            dataMap.put("dnsLabelPrefix", this.dnsLabelPrefix);
-            dataMap.put("wlsDomainName", this.wlsDomainName);
-            dataMap.put("azureResourceGroupRegion", this.azureResourceGroupRegion);
-            dataMap.put("debugFlag",this.debugFlag);
-            
-            Properties props = new Properties();
-            props.putAll(dataMap);
-            
-            props.store(new FileOutputStream(HOSTNAME_INPUT_PROPS_FILE), null);
-            
+            writer = new FileWriter(new File(OUTPUT_HOSTNAME_VERIFIER_JAVA_FILE));
+            writer.write(content);
+            System.out.println("Success");
+
         } catch (Exception e)
-        {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-    public void writeOutputFile()
-    {
-        Writer file = null;
-        try
-        {
-            System.out.println("Starting Template processing ...");
-            file = new FileWriter(new File(OUTPUT_FILE));
-            template.process(dataMap, file);
-            file.flush();
-            System.out.println("Template processing successful.");
-
-        }
-        catch (Exception e)
         {
             e.printStackTrace();
             System.exit(1);
@@ -93,24 +60,62 @@ public class CustomHostNameVerifierGenerator
         {
             try
             {
-                if(file != null)
-                    file.close();
-            } catch (IOException e)
+                if(writer != null)
+                    writer.close();
+            }
+            catch (IOException e)
             {
                 e.printStackTrace();
-                System.exit(1);
             }
         }
 
     }
 
+    public String processTemplate(Map<String,String> dataMap) throws IOException,java.net.URISyntaxException
+    {
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream(TEMPLATE_NAME);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int len;
+
+        // read bytes from the input stream and store them in the buffer
+        while ((len = is.read(buffer)) != -1)
+        {
+            os.write(buffer, 0, len);
+        }
+
+        byte[] encoded = os.toByteArray();
+
+        String templateFileContent = new String(encoded, Charset.forName("UTF-8"));
+
+        Iterator<Entry<String, String>> it = dataMap.entrySet().iterator();
+        while (it.hasNext())
+        {
+            Map.Entry<String, String> set = (Map.Entry<String, String>) it.next();
+            String key=set.getKey();
+            String value=(String) set.getValue();
+            String stringToBeReplaced="${"+key+"}";
+            templateFileContent=templateFileContent.replace(stringToBeReplaced, value);
+        }
+
+        return templateFileContent;
+
+    }
+
     public static void main(String[] args)
     {
-        CustomHostNameVerifierGenerator generator = new CustomHostNameVerifierGenerator();
-        generator.readArguments(args);
-        generator.init();
-        generator.buildData();
-        generator.writeOutputFile();
+        try
+        {
+            CustomHostNameVerifierGenerator generator = new CustomHostNameVerifierGenerator();
+            generator.readArguments(args);
+            Map dataMap = generator.buildData();
+            generator.writeFile(generator.processTemplate(dataMap));
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     private void readArguments(String[] args)

@@ -7,23 +7,14 @@
   <groupId>com.oracle.azure.weblogic.util</groupId>
   <artifactId>customhostnameverifiergenerator</artifactId>
   <version>1.0</version>
-
   <name>customhostnameverifiergenerator</name>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
   </properties>
-
   <dependencies>
-      <dependency>
-        <groupId>org.freemarker</groupId>
-        <artifactId>freemarker</artifactId>
-        <version>2.3.31</version>
-      </dependency>  
   </dependencies>
-
   <build>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
@@ -68,7 +59,6 @@
                         <addClasspath>true</addClasspath>
 						<classpathPrefix>dependency/</classpathPrefix>
                         <mainClass>
-                            <!--Replace with the class that contains the main function-->
                             com.oracle.azure.weblogic.util.CustomHostNameVerifierGenerator
                         </mainClass>
                     </manifest>
