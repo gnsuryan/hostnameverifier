@@ -18,7 +18,7 @@ function readArgs()
 
   adminInternalHostName="$1"
   adminExternalHostName="$2"
-  adminDnsZoneName="$3"
+  adminDNSZoneName="$3"
   dnsLabelPrefix="$4"
   wlsDomainName="$5"
   azureResourceGroupRegion="$6"
@@ -43,14 +43,6 @@ then
   exit 1
 fi
 
-mvn --version > /dev/null 2>&1
-
-if [ $? != 0 ];
-then
-  echo -e "Error!! This script requires maven to be installed. Please install maven and retry"
-  exit 1
-fi
-
 if [ -z $WL_HOME ];
 then
   echo -e "Error !! WL_HOME is not set. \nPlease ensure that WebLogic Server is installed and WL_HOME variable is set to the WebLogic Home Directory"
@@ -61,62 +53,44 @@ fi
 
 readArgs "$@"
 
-mvn clean dependency:copy-dependencies package
+echo "initializing ..."
+CLASSES_DIR="$SCRIPT_DIR/classes"
+mkdir -p "$CLASSES_DIR"
 
-if [ $? != 0 ];
-then
-  echo "Packaging of customhostnameverifier generator failed. Please try again"
-  exit 1
-fi
+OUTPUT_DIR="$SCRIPT_DIR/output"
+mkdir -p "$OUTPUT_DIR"
 
-java -jar $SCRIPT_DIR/target/customhostnameverifiergenerator-1.0.jar "$adminInternalHostName" "$adminExternalHostName" "$adminDnsZoneName" "$dnsLabelPrefix" "$wlsDomainName" "$azureResourceGroupRegion" "$debugFlag"
+echo "Copying HostNames Template file ..."
+cp -rf $SCRIPT_DIR/src/main/java/com/oracle/azure/weblogic/HostNameValuesTemplate.txt $SCRIPT_DIR/src/main/java/com/oracle/azure/weblogic/HostNameValues.java
 
-if [ $? != 0 ];
-then
-  echo "CustHostNameVerifierGenerator Failed !! Please check the error and retry."
-  exit 1
-else
-  echo "CustHostNameVerifierGenerator Completed Successfully !!"
-fi
+cd $SCRIPT_DIR/src/main/java
+echo "Compiling Default HostNameValues.java ..."
+$JAVA_HOME/bin/javac -d $CLASSES_DIR com/oracle/azure/weblogic/HostNameValues.java
 
-PROJECT_NAME="wlscustomhostnameverifier"
+echo "Compiling WebLogicCustomHostNameVerifier.java "
+$JAVA_HOME/bin/javac -d $CLASSES_DIR -classpath $WL_HOME/server/lib/weblogic.jar:$CLASSES_DIR com/oracle/azure/weblogic/security/util/WebLogicCustomHostNameVerifier.java
 
-PROJECT_BASE_DIR="${SCRIPT_DIR}/project"
+echo "generating weblogicustomhostnameverifier.jar"
+cd $CLASSES_DIR
+jar cf $OUTPUT_DIR/weblogicustomhostnameverifier.jar com/oracle/azure/weblogic/security/util/*.class
 
-mkdir -p $PROJECT_BASE_DIR
-rm -rf $PROJECT_BASE_DIR/*
+#replace arg values in HostNameValues.java
+cp  $SCRIPT_DIR/src/main/java/com/oracle/azure/weblogic/HostNameValues.java $SCRIPT_DIR/src/main/java/com/oracle/azure/weblogic/HostNameValues.java.bak
+sed -i "s/debugEnabled=.*/debugEnabled=${debugFlag};/g" $SCRIPT_DIR/src/main/java/com/oracle/azure/weblogic/HostNameValues.java
+sed -i "s/adminInternalHostName=.*/adminInternalHostName=\"${adminInternalHostName}\";/g" $SCRIPT_DIR/src/main/java/com/oracle/azure/weblogic/HostNameValues.java
+sed -i "s/adminExternalHostName=.*/adminExternalHostName=\"${adminExternalHostName}\";/g" $SCRIPT_DIR/src/main/java/com/oracle/azure/weblogic/HostNameValues.java
+sed -i "s/adminDNSZoneName=.*/adminDNSZoneName=\"${adminDNSZoneName}\";/g" $SCRIPT_DIR/src/main/java/com/oracle/azure/weblogic/HostNameValues.java
+sed -i "s/dnsLabelPrefix=.*/dnsLabelPrefix=\"${dnsLabelPrefix}\";/g" $SCRIPT_DIR/src/main/java/com/oracle/azure/weblogic/HostNameValues.java
+sed -i "s/wlsDomainName=.*/wlsDomainName=\"${wlsDomainName}\";/g" $SCRIPT_DIR/src/main/java/com/oracle/azure/weblogic/HostNameValues.java
+sed -i "s/azureResourceGroupRegion=.*/azureResourceGroupRegion=\"${azureResourceGroupRegion}\";/g" $SCRIPT_DIR/src/main/java/com/oracle/azure/weblogic/HostNameValues.java
 
-cd $PROJECT_BASE_DIR
+cd $SCRIPT_DIR/src/main/java
+echo "Compiling modified HostNameValues.java ..."
+$JAVA_HOME/bin/javac -d $CLASSES_DIR com/oracle/azure/weblogic/HostNameValues.java
 
-echo "generating maven project for generating CustHostNameVerifier jar from generated source"
-mvn  archetype:generate \
-    -DgroupId=com.oracle.azure.weblogic.security.util \
-    -DartifactId=$PROJECT_NAME \
-    -DarchetypeArtifactId=maven-archetype-quickstart  \
-    -DinteractiveMode=false \
-    -DarchetypeCatalog=local
-    
-
-PROJECT_DIR="${PROJECT_BASE_DIR}/${PROJECT_NAME}"
-
-SOURCE_DIR="${PROJECT_DIR}/src/main/java/com/oracle/azure/weblogic/security/util"
-mkdir -p ${SOURCE_DIR}
-
-cp $SCRIPT_DIR/target/WebLogicAzureCustomHostNameVerifier.java ${SOURCE_DIR}
-rm -rf ${SOURCEDIR}/App.java
-
-cd $PROJECT_DIR 
-
-#modify version to 1.0
-mvn versions:set -DnewVersion=1.0
-
-#modify maven pom.xml to include dependency on weblogic.jar to compile the CustomHostNameVerifier class
-
-echo "modifying pom.xml to include weblogic.jar dependency"
-sed -i 's/<dependencies>/<dependencies>\r\n<dependency>\r\n<groupId>weblogic<\/groupId>\r\n<artifactId>weblogicjar<\/artifactId>\r\n<version>1.0<\/version>\r\n<scope>system<\/scope>\r\n<systemPath>\${env.WL_HOME}\/server\/lib\/weblogic.jar<\/systemPath>\r\n<\/dependency>\r\n/g' pom.xml 
-
-mvn -DskipTests -Dmaven.test.skip=true clean package
-
+echo "generating hostnamevalues.jar"
+cd $CLASSES_DIR
+jar cf $OUTPUT_DIR/hostnamevalues.jar com/oracle/azure/weblogic/*.class
 
 if [ $? != 0 ];
 then
@@ -126,5 +100,20 @@ else
   echo "CustomHostNameVerifier jar created Successfully !!"
 fi
 
+echo "cleaning up existing classes ..."
+find $CLASSES_DIR -type f -name "*.class" -delete
 
+echo "Running HostNameVerifierTest ..."
+cd $SCRIPT_DIR/src/test/java
+$JAVA_HOME/bin/javac -d $CLASSES_DIR -classpath $OUTPUT_DIR/hostnamevalues.jar:$OUTPUT_DIR/weblogicustomhostnameverifier.jar com/oracle/azure/weblogic/security/test/WebLogicCustomHostNameVerifierTest.java
+
+$JAVA_HOME/bin/java -classpath $CLASSES_DIR:$OUTPUT_DIR/hostnamevalues.jar:$OUTPUT_DIR/weblogicustomhostnameverifier.jar com/oracle/azure/weblogic/security/test/WebLogicCustomHostNameVerifierTest "$@"
+
+if [ $? != 0 ];
+then
+  echo "CustomHostNameVerifierTest Failed !! Please check the error and retry."
+  exit 1
+else
+  echo "CustomHostNameVerifierTest Passed Successfully !!"
+fi
 
