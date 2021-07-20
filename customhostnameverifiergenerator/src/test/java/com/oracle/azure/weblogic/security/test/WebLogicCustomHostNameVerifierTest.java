@@ -1,6 +1,5 @@
 package com.oracle.azure.weblogic.security.test;
 
-import com.oracle.azure.weblogic.HostNameValues;
 import com.oracle.azure.weblogic.security.util.WebLogicCustomHostNameVerifier;
 
 
@@ -47,39 +46,39 @@ public class WebLogicCustomHostNameVerifierTest
     {
         boolean fail=false;
         
-        if(! HostNameValues.adminInternalHostName.equals(adminInternalHostName))
+        if(! WebLogicCustomHostNameVerifier.adminInternalHostName.equals(adminInternalHostName))
         {
-            System.out.println("Error !! adminInternalHostName not matching in HostNameValues.java: "+HostNameValues.adminInternalHostName+","+adminInternalHostName);
+            System.out.println("Error !! adminInternalHostName not matching in WebLogicCustomHostNameVerifier.java: "+WebLogicCustomHostNameVerifier.adminInternalHostName+","+adminInternalHostName);
             fail=true;
         }
 
-        if(! HostNameValues.adminExternalHostName.equals(adminExternalHostName))
+        if(! WebLogicCustomHostNameVerifier.adminExternalHostName.equals(adminExternalHostName))
         {
-            System.out.println("Error !! adminExternalHostName not matching in HostNameValues.java "+HostNameValues.adminExternalHostName+","+adminExternalHostName);
+            System.out.println("Error !! adminExternalHostName not matching in WebLogicCustomHostNameVerifier.java "+WebLogicCustomHostNameVerifier.adminExternalHostName+","+adminExternalHostName);
             fail=true;
         }
 
-        if(! HostNameValues.adminDNSZoneName.equals(adminDNSZoneName))
+        if(! WebLogicCustomHostNameVerifier.adminDNSZoneName.equals(adminDNSZoneName))
         {
-            System.out.println("Error !! adminDNSZoneName not matching in HostNameValues.java "+HostNameValues.adminDNSZoneName+","+adminDNSZoneName);
+            System.out.println("Error !! adminDNSZoneName not matching in WebLogicCustomHostNameVerifier.java "+WebLogicCustomHostNameVerifier.adminDNSZoneName+","+adminDNSZoneName);
             fail=true;
         }
 
-        if(! HostNameValues.dnsLabelPrefix.equals(dnsLabelPrefix))
+        if(! WebLogicCustomHostNameVerifier.dnsLabelPrefix.equals(dnsLabelPrefix))
         {
-            System.out.println("Error !! dnsLabelPrefix not matching in HostNameValues.java "+HostNameValues.dnsLabelPrefix+","+dnsLabelPrefix);
+            System.out.println("Error !! dnsLabelPrefix not matching in WebLogicCustomHostNameVerifier.java "+WebLogicCustomHostNameVerifier.dnsLabelPrefix+","+dnsLabelPrefix);
             fail=true;
         }
 
-        if(! HostNameValues.wlsDomainName.equals(wlsDomainName))
+        if(! WebLogicCustomHostNameVerifier.wlsDomainName.equals(wlsDomainName))
         {
-            System.out.println("Error !! wlsDomainName not matching in HostNameValues.java "+HostNameValues.wlsDomainName+","+wlsDomainName);
+            System.out.println("Error !! wlsDomainName not matching in WebLogicCustomHostNameVerifier.java "+WebLogicCustomHostNameVerifier.wlsDomainName+","+wlsDomainName);
             fail=true;
         }
 
-        if(! HostNameValues.azureResourceGroupRegion.equals(azureResourceGroupRegion))
+        if(! WebLogicCustomHostNameVerifier.azureResourceGroupRegion.equals(azureResourceGroupRegion))
         {
-            System.out.println("Error !! azureResourceGroupRegion not matching in HostNameValues.java "+HostNameValues.azureResourceGroupRegion+","+azureResourceGroupRegion);
+            System.out.println("Error !! azureResourceGroupRegion not matching in WebLogicCustomHostNameVerifier.java "+WebLogicCustomHostNameVerifier.azureResourceGroupRegion+","+azureResourceGroupRegion);
             fail=true;
         }
 
