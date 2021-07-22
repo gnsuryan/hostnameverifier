@@ -1,12 +1,38 @@
 package com.oracle.azure.weblogic.security.util;
 
-import com.oracle.azure.weblogic.HostNameValues;
 import weblogic.security.utils.SSLCertUtility;
+import java.util.Properties;
+import java.io.InputStream;
 
-public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.HostnameVerifier, HostNameValues
+public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.HostnameVerifier 
 {
+    public static Properties hostnameProps;
+
+    public static boolean debugEnabled;
+    public static String azureVMExternalDomainName;
+    public static String adminInternalHostName;
+    public static String adminExternalHostName;
+    public static String adminDNSZoneName;
+    public static String dnsLabelPrefix;
+    public static String wlsDomainName;
+    public static String azureResourceGroupRegion;
+    
+    static
+    {
+        try 
+        {
+            loadProperties();
+        } catch (Exception e) 
+        {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+       
+    }
+
     public boolean verify(String urlHostname, javax.net.ssl.SSLSession session)
     {
+
         String commonName = SSLCertUtility.getCommonName(session);
         debug("commonName: "+commonName);
         debug("urlHostname: "+urlHostname);
@@ -50,10 +76,38 @@ public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.Hos
         return false;
     }
     
-    private void debug(String debugStatement)
+    private static void debug(String debugStatement)
     {
         if(debugEnabled)
             System.out.println(debugStatement);
+    }
+
+    private static void loadProperties() throws Exception
+    {
+        try 
+        {
+            System.out.println("Loading hostname properties started");
+            hostnameProps = new Properties();
+            InputStream inputStream = WebLogicCustomHostNameVerifier.class.getClassLoader().getResourceAsStream("hostname.properties");
+            hostnameProps.load(inputStream);
+
+            azureVMExternalDomainName=hostnameProps.getProperty("azureVMExternalDomainName","cloudapp.azure.com");
+            adminInternalHostName=hostnameProps.getProperty("adminInternalHostName");
+            adminExternalHostName=hostnameProps.getProperty("adminExternalHostName");
+            adminDNSZoneName=hostnameProps.getProperty("adminDNSZoneName");
+            dnsLabelPrefix=hostnameProps.getProperty("dnsLabelPrefix");
+            wlsDomainName=hostnameProps.getProperty("wlsDomainName");
+            azureResourceGroupRegion=hostnameProps.getProperty("azureResourceGroupRegion");    
+            
+            String debugEnabledStr=hostnameProps.getProperty("debugEnabled","false");
+            debugEnabled = Boolean.parseBoolean(debugEnabledStr);
+            System.out.println("Loading hostname properties completed");
+    
+        } catch (Exception e) 
+        {
+            e.printStackTrace();
+            throw e;
+        }
     }
 }
 
