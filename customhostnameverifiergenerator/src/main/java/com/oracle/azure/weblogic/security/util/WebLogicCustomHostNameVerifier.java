@@ -3,9 +3,13 @@ package com.oracle.azure.weblogic.security.util;
 import weblogic.security.utils.SSLCertUtility;
 import java.util.Properties;
 import java.io.InputStream;
+import java.io.File;
+import java.io.FileInputStream;
 
 public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.HostnameVerifier 
 {
+
+    private static String hostnamePropsFileLocation;
     public static Properties hostnameProps;
 
     public static boolean debugEnabled;
@@ -84,11 +88,19 @@ public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.Hos
 
     private static void loadProperties() throws Exception
     {
+        InputStream inputStream = null;
         try 
         {
-            System.out.println("Loading hostname properties started");
+            String hostnamePropsFileLocation = System.getProperty("hostname.props.location");
+            File hostnamePropsFile = new File(hostnamePropsFileLocation);
+
+            if (!hostnamePropsFile.exists())
+            {
+                throw new RuntimeException("hostname properties file not available at location "+hostnamePropsFileLocation);
+            }
+
             hostnameProps = new Properties();
-            InputStream inputStream = WebLogicCustomHostNameVerifier.class.getClassLoader().getResourceAsStream("hostname.properties");
+            inputStream = new FileInputStream(hostnamePropsFile);
             hostnameProps.load(inputStream);
 
             azureVMExternalDomainName=hostnameProps.getProperty("azureVMExternalDomainName","cloudapp.azure.com");
@@ -101,12 +113,24 @@ public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.Hos
             
             String debugEnabledStr=hostnameProps.getProperty("debugEnabled","false");
             debugEnabled = Boolean.parseBoolean(debugEnabledStr);
-            System.out.println("Loading hostname properties completed");
+            debug("Loading hostname properties completed");
     
         } catch (Exception e) 
         {
             e.printStackTrace();
             throw e;
+        }
+        finally
+        {
+            try
+            {
+                if(inputStream != null)
+                  inputStream.close();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 }

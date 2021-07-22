@@ -125,7 +125,7 @@ function runHostNameVerifierTest()
   $JAVA_HOME/bin/javac -d $CLASSES_DIR -classpath $WL_HOME/server/lib/weblogic.jar:$OUTPUT_DIR/weblogicustomhostnameverifier.jar com/oracle/azure/weblogic/security/test/WebLogicCustomHostNameVerifierTest.java
 
   echo "executing HostNameVerifierTest"
-  $JAVA_HOME/bin/java -classpath $CLASSES_DIR:$WL_HOME/server/lib/weblogic.jar:$OUTPUT_DIR/weblogicustomhostnameverifier.jar com/oracle/azure/weblogic/security/test/WebLogicCustomHostNameVerifierTest "$@"
+  $JAVA_HOME/bin/java -Dhostname.props.location=$CLASSES_DIR/hostname.properties -classpath $CLASSES_DIR:$WL_HOME/server/lib/weblogic.jar:$OUTPUT_DIR/weblogicustomhostnameverifier.jar com/oracle/azure/weblogic/security/test/WebLogicCustomHostNameVerifierTest "$@"
 
   if [ $? != 0 ];
   then
