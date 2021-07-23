@@ -1,16 +1,16 @@
 package com.oracle.azure.weblogic;
 
-public interface HostNameValues
+public class HostNameValues
 {
     public static final String azureVMExternalDomainName="cloudapp.azure.com";
     
     public static final boolean debugEnabled=false;
-    public final String adminInternalHostName="";
-    public final String adminExternalHostName="";
-    public final String adminDNSZoneName="";
-    public final String dnsLabelPrefix="";
-    public final String wlsDomainName="";
-    public final String azureResourceGroupRegion="";
+    public static final String adminInternalHostName="";
+    public static final String adminExternalHostName="";
+    public static final String adminDNSZoneName="";
+    public static final String dnsLabelPrefix="";
+    public static final String wlsDomainName="";
+    public static final String azureResourceGroupRegion="";
 
 }
 
