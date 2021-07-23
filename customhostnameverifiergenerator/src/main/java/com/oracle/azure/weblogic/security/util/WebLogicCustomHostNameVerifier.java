@@ -3,7 +3,7 @@ package com.oracle.azure.weblogic.security.util;
 import com.oracle.azure.weblogic.HostNameValues;
 import weblogic.security.utils.SSLCertUtility;
 
-public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.HostnameVerifier, HostNameValues
+public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.HostnameVerifier
 {
     public boolean verify(String urlHostname, javax.net.ssl.SSLSession session)
     {
@@ -11,12 +11,12 @@ public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.Hos
         debug("commonName: "+commonName);
         debug("urlHostname: "+urlHostname);
         
-        String hostNameMatchStartString = new StringBuilder(dnsLabelPrefix.toLowerCase()).append("0").toString();
-        String hostNameMatchEndString = new StringBuilder(wlsDomainName.toLowerCase())
+        String hostNameMatchStartString = new StringBuilder(HostNameValues.dnsLabelPrefix.toLowerCase()).append("0").toString();
+        String hostNameMatchEndString = new StringBuilder(HostNameValues.wlsDomainName.toLowerCase())
                                             .append(".")
-                                            .append(azureResourceGroupRegion.toLowerCase())
+                                            .append(HostNameValues.azureResourceGroupRegion.toLowerCase())
                                             .append(".")
-                                            .append(azureVMExternalDomainName.toLowerCase()).toString();
+                                            .append(HostNameValues.azureVMExternalDomainName.toLowerCase()).toString();
         
         if(commonName.equalsIgnoreCase(urlHostname))
         {
@@ -24,21 +24,21 @@ public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.Hos
             return true;
         }
         else
-        if(commonName.equalsIgnoreCase(adminInternalHostName))
+        if(commonName.equalsIgnoreCase(HostNameValues.adminInternalHostName))
         {
-            debug("urlhostname matching certificate common name: "+adminInternalHostName+","+commonName);
+            debug("urlhostname matching certificate common name: "+HostNameValues.adminInternalHostName+","+commonName);
             return true;            
         }
         else
-        if(commonName.equalsIgnoreCase(adminExternalHostName))
+        if(commonName.equalsIgnoreCase(HostNameValues.adminExternalHostName))
         {
-            debug("urlhostname matching certificate common name: "+adminExternalHostName+","+commonName);
+            debug("urlhostname matching certificate common name: "+HostNameValues.adminExternalHostName+","+commonName);
             return true;            
         }
         else
-        if(commonName.equalsIgnoreCase(adminDNSZoneName))
+        if(commonName.equalsIgnoreCase(HostNameValues.adminDNSZoneName))
         {
-            debug("adminDNSZoneName matching certificate common name: "+adminDNSZoneName+","+commonName);
+            debug("adminDNSZoneName matching certificate common name: "+HostNameValues.adminDNSZoneName+","+commonName);
             return true;            
         }
         else
@@ -52,7 +52,7 @@ public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.Hos
     
     private void debug(String debugStatement)
     {
-        if(debugEnabled)
+        if(HostNameValues.debugEnabled)
             System.out.println(debugStatement);
     }
 }
