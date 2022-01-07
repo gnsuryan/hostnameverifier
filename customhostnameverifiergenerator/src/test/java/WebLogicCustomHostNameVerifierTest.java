@@ -47,39 +47,39 @@ public class WebLogicCustomHostNameVerifierTest
     {
         boolean fail=false;
         
-        if(! HostNameValues.adminInternalHostName.equals(adminInternalHostName))
+        if(! HostNameValues.getAdminInternalHostName().equals(adminInternalHostName))
         {
-            System.out.println("Error !! adminInternalHostName not matching in HostNameValues.java: "+HostNameValues.adminInternalHostName+","+adminInternalHostName);
+            System.out.println("Error !! adminInternalHostName not matching in HostNameValues.java: "+HostNameValues.getAdminInternalHostName()+","+adminInternalHostName);
             fail=true;
         }
 
-        if(! HostNameValues.adminExternalHostName.equals(adminExternalHostName))
+        if(! HostNameValues.getAdminExternalHostName().equals(adminExternalHostName))
         {
-            System.out.println("Error !! adminExternalHostName not matching in HostNameValues.java "+HostNameValues.adminExternalHostName+","+adminExternalHostName);
+            System.out.println("Error !! adminExternalHostName not matching in HostNameValues.java "+HostNameValues.getAdminExternalHostName()+","+adminExternalHostName);
             fail=true;
         }
 
-        if(! HostNameValues.adminDNSZoneName.equals(adminDNSZoneName))
+        if(! HostNameValues.getAdminDNSZoneName().equals(adminDNSZoneName))
         {
-            System.out.println("Error !! adminDNSZoneName not matching in HostNameValues.java "+HostNameValues.adminDNSZoneName+","+adminDNSZoneName);
+            System.out.println("Error !! adminDNSZoneName not matching in HostNameValues.java "+HostNameValues.getAdminDNSZoneName()+","+adminDNSZoneName);
             fail=true;
         }
 
-        if(! HostNameValues.dnsLabelPrefix.equals(dnsLabelPrefix))
+        if(! HostNameValues.getDnsLabelPrefix().equals(dnsLabelPrefix))
         {
-            System.out.println("Error !! dnsLabelPrefix not matching in HostNameValues.java "+HostNameValues.dnsLabelPrefix+","+dnsLabelPrefix);
+            System.out.println("Error !! dnsLabelPrefix not matching in HostNameValues.java "+HostNameValues.getDnsLabelPrefix()+","+dnsLabelPrefix);
             fail=true;
         }
 
-        if(! HostNameValues.wlsDomainName.equals(wlsDomainName))
+        if(! HostNameValues.getWlsDomainName().equals(wlsDomainName))
         {
-            System.out.println("Error !! wlsDomainName not matching in HostNameValues.java "+HostNameValues.wlsDomainName+","+wlsDomainName);
+            System.out.println("Error !! wlsDomainName not matching in HostNameValues.java "+HostNameValues.getWlsDomainName()+","+wlsDomainName);
             fail=true;
         }
 
-        if(! HostNameValues.azureResourceGroupRegion.equals(azureResourceGroupRegion))
+        if(! HostNameValues.getAzureResourceGroupRegion().equals(azureResourceGroupRegion))
         {
-            System.out.println("Error !! azureResourceGroupRegion not matching in HostNameValues.java "+HostNameValues.azureResourceGroupRegion+","+azureResourceGroupRegion);
+            System.out.println("Error !! azureResourceGroupRegion not matching in HostNameValues.java "+HostNameValues.getAzureResourceGroupRegion()+","+azureResourceGroupRegion);
             fail=true;
         }
 
