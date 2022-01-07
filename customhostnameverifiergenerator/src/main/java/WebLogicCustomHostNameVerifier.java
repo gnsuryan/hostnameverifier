@@ -11,10 +11,10 @@ public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.Hos
         debug("commonName: "+commonName);
         debug("urlHostname: "+urlHostname);
         
-        String hostNameMatchStartString = new StringBuilder(HostNameValues.dnsLabelPrefix.toLowerCase()).append("0").toString();
-        String hostNameMatchEndString = new StringBuilder(HostNameValues.wlsDomainName.toLowerCase())
+        String hostNameMatchStartString = new StringBuilder(HostNameValues.getDnsLabelPrefix().toLowerCase()).append("0").toString();
+        String hostNameMatchEndString = new StringBuilder(HostNameValues.getWlsDomainName().toLowerCase())
                                             .append(".")
-                                            .append(HostNameValues.azureResourceGroupRegion.toLowerCase())
+                                            .append(HostNameValues.getAzureResourceGroupRegion().toLowerCase())
                                             .append(".")
                                             .append(HostNameValues.azureVMExternalDomainName.toLowerCase()).toString();
         
@@ -24,21 +24,21 @@ public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.Hos
             return true;
         }
         else
-        if(commonName.equalsIgnoreCase(HostNameValues.adminInternalHostName))
+        if(commonName.equalsIgnoreCase(HostNameValues.getAdminInternalHostName()))
         {
-            debug("urlhostname matching certificate common name: "+HostNameValues.adminInternalHostName+","+commonName);
+            debug("urlhostname matching certificate common name: "+HostNameValues.getAdminInternalHostName()+","+commonName);
             return true;            
         }
         else
-        if(commonName.equalsIgnoreCase(HostNameValues.adminExternalHostName))
+        if(commonName.equalsIgnoreCase(HostNameValues.getAdminExternalHostName()))
         {
-            debug("urlhostname matching certificate common name: "+HostNameValues.adminExternalHostName+","+commonName);
+            debug("urlhostname matching certificate common name: "+HostNameValues.getAdminExternalHostName()+","+commonName);
             return true;            
         }
         else
-        if(commonName.equalsIgnoreCase(HostNameValues.adminDNSZoneName))
+        if(commonName.equalsIgnoreCase(HostNameValues.getAdminDNSZoneName()))
         {
-            debug("adminDNSZoneName matching certificate common name: "+HostNameValues.adminDNSZoneName+","+commonName);
+            debug("adminDNSZoneName matching certificate common name: "+HostNameValues.getAdminDNSZoneName()+","+commonName);
             return true;            
         }
         else
@@ -52,7 +52,7 @@ public class WebLogicCustomHostNameVerifier implements weblogic.security.SSL.Hos
     
     private void debug(String debugStatement)
     {
-        if(HostNameValues.debugEnabled)
+        if(HostNameValues.isDebugEnabled())
             System.out.println(debugStatement);
     }
 }
